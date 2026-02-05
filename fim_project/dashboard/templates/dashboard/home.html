@@ -1,0 +1,69 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="metric-grid">
+    <div class="card">
+        <h3>Monitored Directories</h3>
+        <div class="value">{{ directories.count }}</div>
+    </div>
+    <div class="card">
+        <h3>Total Files Tracked</h3>
+        <div class="value">{{ total_files }}</div>
+    </div>
+    <div class="card">
+        <h3>Unresolved Alerts</h3>
+        <div class="value" style="color: {% if alerts_count > 0 %}var(--danger){% else %}var(--success){% endif %}">
+            {{ alerts_count }}
+        </div>
+    </div>
+</div>
+
+<h2 class="section-title">Recent Activity</h2>
+
+{% if recent_logs %}
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>File Path</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td>
+                    {% if log.change_type == 'NEW' %}
+                    <span class="badge badge-new">NEW</span>
+                    {% elif log.change_type == 'MODIFIED' %}
+                    <span class="badge badge-modified">MODIFIED</span>
+                    {% elif log.change_type == 'DELETED' %}
+                    <span class="badge badge-deleted">DELETED</span>
+                    {% else %}
+                    <span class="badge badge-perm">{{ log.change_type }}</span>
+                    {% endif %}
+                </td>
+                <td style="font-family: monospace; color: var(--text-secondary);">{{ log.file_path }}</td>
+                <td>{{ log.detected_at|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    {% if log.is_resolved %}
+                    <span style="color: var(--success);">Resolved</span>
+                    {% else %}
+                    <span style="color: var(--danger);">Active</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div
+    style="padding: 3rem; text-align: center; color: var(--text-secondary); background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border);">
+    No activity detected yet. Run a scan to populate logs.
+</div>
+{% endif %}
+
+{% endblock %}
